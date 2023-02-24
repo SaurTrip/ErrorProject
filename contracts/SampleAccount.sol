@@ -14,7 +14,6 @@ function openAccount(address _account1,uint _openingAmount) public  {
     addressToAmountMapping[_account1] += _openingAmountInEther;
     isAccountExist = true;
     console.log("Account %s opened with %s amount.",_account1,_openingAmountInEther);
-
 }
 
 function withdrawFromAccount(address _account,uint _amountToWithdraw) public payable {
