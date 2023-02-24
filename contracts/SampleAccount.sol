@@ -7,16 +7,34 @@ contract SampleAccount {
 
 mapping(address=>uint) private addressToAmountMapping; 
 bool private isAccountExist;
+address private constant  ACCOUNT = 0xbDA5747bFD65F08deb54cb465eB87D40e51B197E;
 
-function openAccount(address _account1,uint _openingAmount) public  {
+// openAccount converts the _minimumOpeningAmount in ether amount and validates that the minimum amount to open account
+// is maintained. It checks whether the account exist or not, if it does not exist, then it opens the account with 
+// _minimumOpeningAmount and returns the account address.
 
+function openAccount(uint _openingAmount) private returns(address) {
+
+    uint _minimumOpeningAmountInEther = 500 * 10**18;
     uint _openingAmountInEther = _openingAmount * 10**18;
-    addressToAmountMapping[_account1] += _openingAmountInEther;
+    assert(_openingAmountInEther >= _minimumOpeningAmountInEther);
+    addressToAmountMapping[ACCOUNT] += _openingAmountInEther;
     isAccountExist = true;
-    console.log("Account %s opened with %s amount.",_account1,_openingAmountInEther);
+    console.log("Account %s opened with %s amount.",ACCOUNT,_openingAmountInEther);
+    return ACCOUNT;
 }
 
-function withdrawFromAccount(address _account,uint _amountToWithdraw) public payable {
+// getAccount opens the account for _minimumOpeningAmount and returns the account address. 
+
+function getAccount(uint _openingAmount) public  returns(address){
+    return openAccount(_openingAmount);
+}
+
+// withdrawFromAccount allows withdrawal from the account for the supplied account address and the amount to withdraw from account.
+// It allows the withdrawal only when the account balance is greater than withdrawal amount, and withdrawal does not allow
+// account balance to fall below the minimum account balance requirement.
+
+function withdrawFromAccount(address _account,uint _amountToWithdraw) public  {
 
     uint minimumAmountToKeepInAccountInEther = 50 * 10**18;
     uint _amountToWithdrawInEther = _amountToWithdraw * 10**18;
@@ -31,9 +49,11 @@ function withdrawFromAccount(address _account,uint _amountToWithdraw) public pay
     }
 }
 
+// accountBalance returns the account balance only if the account exists.
+
 function accountBalance(address _account) public view returns(uint){
 
-    assert(isAccountExist);
+    require(isAccountExist,"Account not found!");
     console.log("Account %s has balance %s",_account,addressToAmountMapping[_account]);
     return addressToAmountMapping[_account];
 
